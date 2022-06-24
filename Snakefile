@@ -23,7 +23,7 @@ rule get_MultiAssayExp:
         """
         Rscript -e \
         '
-        S3.remote(prefix + "annotation/Gencode.v19.annotation.RData")
+        load(paste0("{prefix}", "annotation/Gencode.v19.annotation.RData"))
         source("https://raw.githubusercontent.com/BHKLAB-Pachyderm/ICB_Common/main/code/get_MultiAssayExp.R");
         saveRDS(
             get_MultiAssayExp(study = "Jerby_Arnon", input_dir = paste0("{prefix}", "processed")), 
