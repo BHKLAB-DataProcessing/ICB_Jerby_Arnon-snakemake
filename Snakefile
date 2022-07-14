@@ -10,13 +10,13 @@ filename = config["filename"]
 data_source  = "https://raw.githubusercontent.com/BHKLAB-Pachyderm/ICB_Jerby_Arnon-data/main/"
 
 rule get_MultiAssayExp:
-    output:
-        S3.remote(prefix + filename)
     input:
         S3.remote(prefix + "processed/CLIN.csv"),
         S3.remote(prefix + "processed/EXPR.csv"),
         S3.remote(prefix + "processed/cased_sequenced.csv"),
         S3.remote(prefix + "annotation/Gencode.v19.annotation.RData")
+    output:
+        S3.remote(prefix + filename)
     resources:
         mem_mb=4000
     shell:
@@ -41,11 +41,11 @@ rule download_annotation:
         """
 
 rule format_clin:
-    output:
-        S3.remote(prefix + "processed/CLIN.csv")
     input:
         S3.remote(prefix + "processed/cased_sequenced.csv"),
         S3.remote(prefix + "download/CLIN.txt")
+    output:
+        S3.remote(prefix + "processed/CLIN.csv")
     shell:
         """
         Rscript scripts/Format_CLIN.R \
@@ -54,11 +54,11 @@ rule format_clin:
         """
 
 rule format_expr:
-    output:
-        S3.remote(prefix + "processed/EXPR.csv")
     input:
         S3.remote(prefix + "download/EXPR.txt.gz"),
         S3.remote(prefix + "processed/cased_sequenced.csv")
+    output:
+        S3.remote(prefix + "processed/EXPR.csv")
     shell:
         """
         Rscript scripts/Format_EXPR.R \
@@ -67,10 +67,10 @@ rule format_expr:
         """
 
 rule format_cased_sequenced:
-    output:
-        S3.remote(prefix + "processed/cased_sequenced.csv")
     input:
         S3.remote(prefix + "download/CLIN.txt")
+    output:
+        S3.remote(prefix + "processed/cased_sequenced.csv")
     shell:
         """
         Rscript scripts/Format_cased_sequenced.R \
@@ -78,12 +78,25 @@ rule format_cased_sequenced:
         {prefix}processed \
         """
 
-rule download_data:
+rule process_downloaded_data:
+    input:
+        S3.remote(prefix + "download/1-s2.0-S0092867418311784-mmc1.xlsx"),
+        S3.remote(prefix + "download/1-s2.0-S0092867418311784-mmc6.xlsx")
     output:
         S3.remote(prefix + "download/CLIN.txt"),
-        S3.remote(prefix + "download/EXPR.txt.gz"),
+        S3.remote(prefix + "download/EXPR.txt.gz")
     shell:
         """
-        wget {data_source}CLIN.txt -O {prefix}download/CLIN.txt
-        wget {data_source}EXPR.txt.gz -O {prefix}download/EXPR.txt.gz
+        Rscript scripts/format_downloaded_data.R \
+        {prefix}download
+        """
+
+rule download_data:
+    output:
+        S3.remote(prefix + "download/1-s2.0-S0092867418311784-mmc1.xlsx"),
+        S3.remote(prefix + "download/1-s2.0-S0092867418311784-mmc6.xlsx")
+    shell:
+        """
+        wget 'https://ars.els-cdn.com/content/image/1-s2.0-S0092867418311784-mmc1.xlsx' -O {prefix}download/1-s2.0-S0092867418311784-mmc1.xlsx 
+        wget 'https://ars.els-cdn.com/content/image/1-s2.0-S0092867418311784-mmc6.xlsx' -O {prefix}download/1-s2.0-S0092867418311784-mmc6.xlsx
         """ 

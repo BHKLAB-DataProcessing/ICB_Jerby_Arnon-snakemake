@@ -5,7 +5,7 @@ output_dir <- args[2]
 source("https://raw.githubusercontent.com/BHKLAB-Pachyderm/ICB_Common/main/code/Get_Response.R")
 source("https://raw.githubusercontent.com/BHKLAB-Pachyderm/ICB_Common/main/code/format_clin_data.R")
 
-clin_original = read.csv( file.path(input_dir, "CLIN.txt"), stringsAsFactors=FALSE , sep="\t" , dec=',')
+clin_original = read.csv( file.path(input_dir, "CLIN.txt"), stringsAsFactors=FALSE , sep="\t")
 selected_cols <- c( "Sample","Sex","RECIST","t.pfs","pfs" )
 clin = cbind( clin_original[ , selected_cols] , "Melanoma" , "PD-1/PD-L1" , NA , NA , NA , NA , NA , NA , NA , NA , NA )
 colnames(clin) = c( "patient" , "sex" , "recist"  ,"t.pfs"  , "pfs"  , "primary" , "drug_type" , "response.other.info" , "response" , "age" , "histo" , "stage" , "t.os" , "os" , "dna" , "rna" )
