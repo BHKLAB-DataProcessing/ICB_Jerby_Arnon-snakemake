@@ -1,17 +1,12 @@
 library(readxl) 
 library(data.table)
 
-format_excel <- function(input_path, sheetname){
-  df <- read_excel(input_path, sheet=sheetname)
-  colnames(df) <- df[1, ]
-  df <- df[-1, ]
-  return(df)
-}
+source("https://raw.githubusercontent.com/BHKLAB-Pachyderm/ICB_Common/main/code/format_excel_functions.R")
 
 args <- commandArgs(trailingOnly = TRUE)
 work_dir <- args[1]
 
-clin <- format_excel(
+clin <- read_and_format_excel(
   input_path=file.path(work_dir, '1-s2.0-S0092867418311784-mmc1.xlsx'),
   sheetname='TableS1C_ValCo2'
 )
@@ -27,7 +22,7 @@ clin$pfs <- as.integer(clin$pfs)
 
 write.table( clin , file=file.path(work_dir, 'CLIN.txt') , quote=FALSE , sep="\t" , col.names=TRUE , row.names=FALSE )
 
-expr <- format_excel(
+expr <- read_and_format_excel(
   input_path=file.path(work_dir, '1-s2.0-S0092867418311784-mmc6.xlsx'),
   sheetname='TableS6B_ValCo2.gene.expression'
 )
